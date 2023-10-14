@@ -13,6 +13,15 @@ def is_5digit_lowercase(s):
         return re.match("^[a-z][a-z][a-z][a-z][a-z]$", s)
 
 
+
+#thanks stack exchange!!
+#https://stackoverflow.com/questions/70125930/sorting-a-list-by-another-list-with-duplicates/70126643#70126643
+
+def all_sorts(numbers, letters):
+    return [list(map(itemgetter(1), chain.from_iterable(p))) for p in product(*(permutations(g) for _,g in groupby(sorted(zip(numbers, letters)), key=itemgetter(0))))]
+
+
+
 Ndict = 8000
 lang = 'en'    
 
@@ -156,17 +165,24 @@ for (wordnum,ws) in enumerate(wordspaces):
 di.close()
 
                          
-dlx3 = subprocess.Popen('knuth/dlx3 m1'.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+dlx3 = subprocess.Popen('knuth/dlx3 m1'.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 dlx3.stdin.write(bytes(open('dlxinput.txt','r').read(),'utf-8'))
 dlx3.stdin.close()
 dlx3.wait()
 
 
+dlx3.stderr.readline()
+line = dlx3.stderr.readline().decode('utf-8')
+regex = re.compile(r'Altogether (?P<numsoln>\d+) solution')
+(numsoln) = regex.match(line).groups()
+numsoln=int(numsoln[0])
+print(f'\nFound {numsoln} solution(s)')
+
 
 #a regular expression that matches things like "c4:a" and gives 4 and a for cell and letter
 regex = re.compile(r'c(?P<cell>\d+):(?P<letter>\w)')
 
-for kk in [0]:
+for kk in range(numsoln):
     line = dlx3.stdout.readline().decode('utf-8')
     if line=='':
         break
@@ -185,63 +201,58 @@ for kk in [0]:
     printwaffle(solutionletters,allgreen)
 
 
-L  = [(letters[i],i) for i in range(len(letters))]
-L.sort()
-(sortedletters,p1) = zip(*L)
-p1=Permutation(p1)
+    L  = [(letters[i],i) for i in range(len(letters))]
+    L.sort()
+    (sortedletters,p1) = zip(*L)
+    p1=Permutation(p1)
 
-L  = [(solutionletters[i],i) for i in range(len(solutionletters))]
-L.sort()
-(sortedletters,p2) = zip(*L)
-p2=Permutation(p2)
+    L  = [(solutionletters[i],i) for i in range(len(solutionletters))]
+    L.sort()
+    (sortedletters,p2) = zip(*L)
+    p2=Permutation(p2)
 
-#print(list(solutionletters) == [letters[i] for i in ~p2*p1])
-
-#thanks stack exchange!!
-#https://stackoverflow.com/questions/70125930/sorting-a-list-by-another-list-with-duplicates/70126643#70126643
-
-def all_sorts(numbers, letters):
-    return [list(map(itemgetter(1), chain.from_iterable(p))) for p in product(*(permutations(g) for _,g in groupby(sorted(zip(numbers, letters)), key=itemgetter(0))))]
-
-#print( all_sorts([1,2,3,1,2,1], 'abcdef') )
-# [['a', 'd', 'f', 'b', 'e', 'c'], ['a', 'd', 'f', 'e', 'b', 'c'], ['a', 'f', 'd', 'b', 'e', 'c'], ['a', 'f', 'd', 'e', 'b', 'c'], ['d', 'a', 'f', 'b', 'e', 'c'], ['d', 'a', 'f', 'e', 'b', 'c'], ['d', 'f', 'a', 'b', 'e', 'c'], ['d', 'f', 'a', 'e', 'b', 'c'], ['f', 'a', 'd', 'b', 'e', 'c'], ['f', 'a', 'd', 'e', 'b', 'c'], ['f', 'd', 'a', 'b', 'e', 'c'], ['f', 'd', 'a', 'e', 'b', 'c']]
-
-    
-ps = all_sorts(solutionletters,range(len(solutionletters)))
-
-max_cycles=1
-
-for (k,p) in enumerate(ps):
-    if (~Permutation(p)*p1).cycles > max_cycles:
-         max_cycles = (~Permutation(p)*p1).cycles
-         bestp = ~Permutation(p)*p1
-
-print()
-print(f"Solution possible in {21-max_cycles} swaps")
-
-#work with the optimal permutations cycles
-bestp = bestp.full_cyclic_form
-bestp.sort(key=len)
+    #print(list(solutionletters) == [letters[i] for i in ~p2*p1])
 
 
+    #print( all_sorts([1,2,3,1,2,1], 'abcdef') )
+    # [['a', 'd', 'f', 'b', 'e', 'c'], ['a', 'd', 'f', 'e', 'b', 'c'], ['a', 'f', 'd', 'b', 'e', 'c'], ['a', 'f', 'd', 'e', 'b', 'c'], ['d', 'a', 'f', 'b', 'e', 'c'], ['d', 'a', 'f', 'e', 'b', 'c'], ['d', 'f', 'a', 'b', 'e', 'c'], ['d', 'f', 'a', 'e', 'b', 'c'], ['f', 'a', 'd', 'b', 'e', 'c'], ['f', 'a', 'd', 'e', 'b', 'c'], ['f', 'd', 'a', 'b', 'e', 'c'], ['f', 'd', 'a', 'e', 'b', 'c']]
 
-partialsolution = list(letters)
-
-for cycle in bestp:
-    m = len(cycle)
-    print('We have a cycle: ',end='')
-    print(cycle )
-    for k in range(m-1):
-        print(f'Swap {cycle[(k+1)]} and {cycle[k]}')
         
-        swapcolors = (['w' for iii in range(21)])
-        swapcolors[cycle[(k+1)]] = 'g'
-        swapcolors[cycle[k]] = 'g'
-        tmp = partialsolution[cycle[k+1]]
-        partialsolution[cycle[(k+1)]]=partialsolution[cycle[(k)]]
-        partialsolution[cycle[k]]=tmp
+    ps = all_sorts(solutionletters,range(len(solutionletters)))
 
-        printwaffle(partialsolution,''.join(swapcolors))
-        print()
-        print()
-          
+    max_cycles=1
+
+    for (k,p) in enumerate(ps):
+        if (~Permutation(p)*p1).cycles > max_cycles:
+            max_cycles = (~Permutation(p)*p1).cycles
+            bestp = ~Permutation(p)*p1
+
+    print()
+    print(f"Solution possible in {21-max_cycles} swaps")
+
+    #work with the optimal permutations cycles
+    bestp = bestp.full_cyclic_form
+    bestp.sort(key=len)
+
+
+
+    partialsolution = list(letters)
+
+    for cycle in bestp:
+        m = len(cycle)
+        print('We have a cycle: ',end='')
+        print(cycle )
+        for k in range(m-1):
+            print(f'Swap {cycle[(k+1)]} and {cycle[k]}')
+            
+            swapcolors = (['w' for iii in range(21)])
+            swapcolors[cycle[(k+1)]] = 'g'
+            swapcolors[cycle[k]] = 'g'
+            tmp = partialsolution[cycle[k+1]]
+            partialsolution[cycle[(k+1)]]=partialsolution[cycle[(k)]]
+            partialsolution[cycle[k]]=tmp
+
+            printwaffle(partialsolution,''.join(swapcolors))
+            print()
+            print()
+            
