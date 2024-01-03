@@ -10,6 +10,7 @@ from operator import itemgetter
 from sympy.combinatorics import Permutation
 
 def is_5digit_lowercase(s):
+     #   return re.match("^[a-z]*$", s)
         return re.match("^[a-z][a-z][a-z][a-z][a-z]$", s)
 
 
@@ -98,10 +99,10 @@ di.write('| solving waffles\n')
 
 #primary
 #the contraint that guarantees we have a word in each of the word spaces
-for k in range(6):
+for k in range(len(wordspaces)):
         di.write(f'w{k} ')
 #write the contraint that guarantees we have a letter in each of the letter spaces
-for k in range(21):
+for k in range(len(letters)):
         di.write(f'l{k} ')
 #write the constraint that counts the letters
 for k in string.ascii_lowercase:
@@ -111,14 +112,14 @@ for k in string.ascii_lowercase:
 
 di.write('| ')
 #secondary contraints
-for k in range(21):
+for k in range(len(letters)):
         di.write(f'c{k} ')
 di.write('\n')
 
 
 
 #write out options that involves filling each cell with each letter
-for k in range(21):
+for k in range(len(letters)):
         for ch in set(letters):#string.ascii_lowercase:
             di.write(f'l{k} {ch} c{k}:{ch}\n')
 

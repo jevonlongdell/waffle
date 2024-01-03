@@ -1,0 +1,4 @@
+https://stackoverflow.com/questions/61595609/minimum-number-of-swaps-to-sort-an-array-with-no-duplicates
+
+https://cs.stackexchange.com/questions/119293/minimum-number-of-swaps-in-sorting-sequence
+
