@@ -1,4 +1,12 @@
-Below is example output, (you can't see the colours do appear when running in terminal)
+Waffle solver
+=============
+
+Solves puzzles from [https://wafflegame.net/](https://wafflegame.net/)
+
+Python code that calls Knuths `dlx3` program to solve the modified open cover problem.
+
+To run do `python waffle.py`, below is example output (You can't see the that colours do appear when running in a terminal.)
+
 
 ```
 letters: siatnoyodhdverhetrmoe
